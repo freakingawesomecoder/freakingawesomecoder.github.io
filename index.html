@@ -2,16 +2,17 @@
 <html>
 <body>
 
-<div id="map" style="margin:auto;width:600px;height:620px"></div>
+<div id="map" style="margin:auto;width:1000px;height:620px"></div>
 
-<script>
+<script type="text/javascript">
+
 function myMap() {
 var mapOptions = {
-    center: new google.maps.LatLng(21.7679, 80.8718),
-    zoom:4.9,
+    center: new google.maps.LatLng(20.7679, 79.8718),
+    zoom:2,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     styles:[
-    {"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"visibility":"on"}]},
+    {"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},
     {"featureType":"administrative.country","elementType":"labels","stylers":[{"visibility":"off"}]},
     {"featureType":"administrative.province","elementType":"geometry.fill","stylers":[{"lightness":"-3"}]},
     {"featureType":"administrative.province","elementType":"labels","stylers":[{"visibility":"off"}]},
@@ -23,21 +24,96 @@ var mapOptions = {
     {"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#e0efef"}]},
     {"featureType":"landscape.natural.landcover","elementType":"geometry.fill","stylers":[{"saturation":"70"},{"lightness":"100"},{"gamma":"8.32"}]},
     {"featureType":"landscape.natural.terrain","elementType":"geometry.fill","stylers":[{"lightness":"47"}]},
-    {"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"hue":"#1900ff"},{"color":"#c0e8e8"}]},{"featureType":"poi","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"hue":"#1900ff"},{"color":"#c0e8e8"}]},
+    {"featureType":"poi","elementType":"labels","stylers":[{"visibility":"off"}]},
     {"featureType":"road","elementType":"geometry","stylers":[{"lightness":100},{"visibility":"simplified"}]},
-    {"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},
     {"featureType":"road.highway","elementType":"labels.text","stylers":[{"visibility":"off"}]},
-    {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"visibility":"off"}]},
+    {"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"visibility":"off"}]},
     {"featureType":"transit.line","elementType":"geometry","stylers":[{"visibility":"on"},{"lightness":700}]},
     {"featureType":"transit.station","elementType":"labels","stylers":[{"visibility":"off"}]},
     {"featureType":"water","elementType":"all","stylers":[{"color":"#7dcdcd"}]}]
 }
 var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 //map.data.loadGeoJson('map.geojson')
-}
-</script>
+//var chart = new google.visualization.GeoChart(document.getElementById('map'));
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeU-vLBclFiFFPc1GGWd7op6sn35Y07dg&callback=myMap"></script>
+// Define the symbol, using one of the predefined paths ('CIRCLE')
+        // supplied by the Google Maps JavaScript API.
+        var lineSymbol = {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 4,
+          strokeColor: '#393'
+        };
+
+        // Create the polyline and add the symbol to it via the 'icons' property.
+        var line = new google.maps.Polyline({
+          path: [{lat: 13.067439, lng: 80.237617}, {lat: 12.972442, lng: 77.580643}],
+          icons: [{
+            icon: lineSymbol,
+            offset: '100%'
+          }],
+          map: map
+        });
+
+        animateCircle(line);
+
+        var citymap = {
+                chennai: {
+                  center: {lat: 13.067439, lng: 80.237617},
+                  population: 221685
+                },
+                bangalore: {
+                  center: {lat: 12.972442, lng: 77.580643},
+                  population: 501202
+                },
+                hyderabad: {
+                  center: {lat: 17.3850, lng: 78.4867},
+                  population: 385779
+                },
+                delhi: {
+                  center: {lat: 28.644800, lng: 77.216721},
+                  population: 840580
+                }
+              };
+
+              for (var city in citymap) {
+                // Add the circle for this city to the map.
+                var cityCircle = new google.maps.Circle({
+                  strokeColor: '#FF0000',
+                  strokeOpacity: 1.0,
+                  strokeWeight: 2,
+                  fillColor: '#FF0000',
+                  fillOpacity: 1.35,
+                  map: map,
+                  center: citymap[city].center,
+                  radius: Math.sqrt(citymap[city].population) * 100
+                });
+              }
+
+}
+function animateCircle(line) {
+         var count = 0;
+         window.setInterval(function() {
+           count = (count + 1) % 200;
+
+           var icons = line.get('icons');
+           icons[0].offset = (count / 2) + '%';
+           line.set('icons', icons);
+       }, 20);
+     }
+
+
+
+                // Construct the circle for each value in citymap.
+            // Note: We scale the area of the circle based on the population.
+
+
+
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeU-vLBclFiFFPc1GGWd7op6sn35Y07dg&callback=myMap"></script>
 <!--
 To use this code on your website, get a free API key from Google.
 Read more at: https://www.w3schools.com/graphics/google_maps_basic.asp

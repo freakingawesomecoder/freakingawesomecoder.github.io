@@ -2,14 +2,15 @@
 <html>
 <body>
 
-<div id="map" style="margin:auto;width:1000px;height:620px"></div>
+<div id="map" style="text-align: center; margin-top: 40px; margin-left: 320px; margin-bottom: 40px;width:800px; height:600px"></div>
 
 <script type="text/javascript">
 
 function myMap() {
 var mapOptions = {
     center: new google.maps.LatLng(20.7679, 79.8718),
-    zoom:4.4,
+    zoom:4.8,
+    disableDefaultUI: true,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     styles:[
     {"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},
@@ -39,22 +40,55 @@ var mapOptions = {
 var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 //map.data.loadGeoJson('map.geojson')
 //var chart = new google.visualization.GeoChart(document.getElementById('map'));
+var marker = new google.maps.Marker({
+         position: {lat:20.7679, lng:79.8718},
+         //map: map,
+         title: 'Click to zoom'
+       });
+map.addListener('center_changed', function() {
+         // 3 seconds after the center of the map has changed, pan back to the
+         // marker.
+         window.setTimeout(function() {
+           map.setZoom(4.8);
+           map.panTo(marker.getPosition());
+         }, 8000);
+        });
 
 // Define the symbol, using one of the predefined paths ('CIRCLE')
         // supplied by the Google Maps JavaScript API.
         var lineSymbol = {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 3.5,
-          strokeColor: '#393'
-        };
-
+           path: 'M 0,-1 0,1',
+           strokeColor: '#3f713f',
+           strokeOpacity: 1,
+           scale: 3
+         };
         // Create the polyline and add the symbol to it via the 'icons' property.
+
         var line = new google.maps.Polyline({
-          path: [{lat: 13.067439, lng: 80.237617}, {lat: 12.972442, lng: 77.580643}],
+          path: [{lat: 13.067439, lng: 80.237617},
+            {lat: 12.972442, lng: 77.580643},
+            ],
+          strokeOpacity: 0,
           icons: [{
             icon: lineSymbol,
-            offset: '100%'
-          }],
+            offset: '0',
+            repeat: '20px'
+              }],
+          map: map
+        });
+
+        animateCircle(line);
+
+        var line = new google.maps.Polyline({
+          path:[{lat: 17.3850, lng: 78.4867},
+          {lat:28.644800, lng: 77.580643}] ,
+
+          strokeOpacity: 0,
+          icons: [{
+            icon: lineSymbol,
+            offset: '0',
+            repeat: '30px'
+              }],
           map: map
         });
 
@@ -63,37 +97,104 @@ var map = new google.maps.Map(document.getElementById("map"), mapOptions);
         var citymap = {
                 chennai: {
                   center: {lat: 13.067439, lng: 80.237617},
-                  population: 221685
+                  radius: 380
                 },
                 bangalore: {
                   center: {lat: 12.972442, lng: 77.580643},
-                  population: 501202
+                  radius: 400
                 },
                 hyderabad: {
                   center: {lat: 17.3850, lng: 78.4867},
-                  population: 385779
+                  radius: 300
                 },
                 delhi: {
-                  center: {lat: 28.644800, lng: 77.216721},
-                  population: 840580
+                  center: {lat: 28.644800, lng: 77.486721},
+                  radius: 380
                 }
               };
 
               for (var city in citymap) {
                 // Add the circle for this city to the map.
                 var cityCircle = new google.maps.Circle({
-                  strokeColor: '#FF0000',
+                  strokeColor: '#EC7063',
                   strokeOpacity: 1.0,
                   strokeWeight: 2,
-                  fillColor: '#FF0000',
+                  fillColor: '#EC7063',
                   fillOpacity: 1.35,
                   map: map,
                   center: citymap[city].center,
-                  radius: Math.sqrt(citymap[city].population) * 100
+                  radius: (citymap[city].radius) * 100
                 });
               }
 
-}
+            infoWindow = new google.maps.InfoWindow;
+
+      /* Current location Finding code program
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            infoWindow.setPosition(pos);
+            infoWindow.setContent('Location found.');
+            infoWindow.open(map);
+            map.setCenter(pos);
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                              'Error: The Geolocation service failed.' :
+                              'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map); */
+
+        // Load GeoJSON.
+        map.data.loadGeoJson(
+            'countries-hires.geojson');
+          map.data.loadGeoJson('https://raw.githubusercontent.com/geohacker/india/master/state/india_telengana.geojson')
+
+        // Color each letter gray. Change the color when the isColorful property
+        // is set to true.
+        map.data.setStyle(function(feature) {
+          var color = '#B0B0B0';
+          if (feature.getProperty('isColorful')) {
+            color = feature.getProperty('color');
+          }
+          return /** @type {google.maps.Data.StyleOptions} */({
+            fillColor: 'white',
+            strokeColor: color,
+            strokeWeight: 1
+          });
+        });
+
+        // When the user clicks, set 'isColorful', changing the color of the letters.
+        map.data.addListener('click', function(event) {
+          event.feature.setProperty('isColorful', true);
+        });
+
+        // When the user hovers, tempt them to click by outlining the letters.
+        // Call revertStyle() to remove all overrides. This will use the style rules
+        // defined in the function passed to setStyle()
+        map.data.addListener('mouseover', function(event) {
+          map.data.revertStyle();
+          map.data.overrideStyle(event.feature, {strokeWeight: 2.4});
+        });
+
+        map.data.addListener('mouseout', function(event) {
+          map.data.revertStyle();
+        });
+
+
+} // closing of the function myMap
 function animateCircle(line) {
          var count = 0;
          window.setInterval(function() {
@@ -104,13 +205,6 @@ function animateCircle(line) {
            line.set('icons', icons);
        }, 20);
      }
-
-
-
-                // Construct the circle for each value in citymap.
-            // Note: We scale the area of the circle based on the population.
-
-
 
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeU-vLBclFiFFPc1GGWd7op6sn35Y07dg&callback=myMap"></script>

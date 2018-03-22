@@ -46,27 +46,23 @@ var marker = new google.maps.Marker({
          title: 'Click to zoom'
        });
 map.addListener('center_changed', function() {
-         // 3 seconds after the center of the map has changed, pan back to the
-         // marker.
-         window.setTimeout(function() {
+          window.setTimeout(function() {
            map.setZoom(4.8);
            map.panTo(marker.getPosition());
          }, 8000);
         });
 
-// Define the symbol, using one of the predefined paths ('CIRCLE')
-        // supplied by the Google Maps JavaScript API.
         var lineSymbol = {
            path: 'M 0,-1 0,1',
-           strokeColor: '#3f713f',
+           strokeColor: '#2d2db9',
            strokeOpacity: 1,
            scale: 3
          };
-        // Create the polyline and add the symbol to it via the 'icons' property.
 
-        var line = new google.maps.Polyline({
+
+         var line = new google.maps.Polyline({
           path: [{lat: 13.067439, lng: 80.237617},
-            {lat: 12.972442, lng: 77.580643},
+            {lat: 12.972442, lng: 76.580643},
             ],
           strokeOpacity: 0,
           icons: [{
@@ -87,7 +83,7 @@ map.addListener('center_changed', function() {
           icons: [{
             icon: lineSymbol,
             offset: '0',
-            repeat: '30px'
+            repeat: '20px'
               }],
           map: map
         });
@@ -100,7 +96,7 @@ map.addListener('center_changed', function() {
                   radius: 380
                 },
                 bangalore: {
-                  center: {lat: 12.972442, lng: 77.580643},
+                  center: {lat: 12.972442, lng: 76.580643},
                   radius: 400
                 },
                 hyderabad: {
@@ -117,10 +113,10 @@ map.addListener('center_changed', function() {
                 // Add the circle for this city to the map.
                 var cityCircle = new google.maps.Circle({
                   strokeColor: '#EC7063',
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2,
+                  strokeOpacity: 1,
+                  strokeWeight: 10,
                   fillColor: '#EC7063',
-                  fillOpacity: 1.35,
+                  fillOpacity: 2,
                   map: map,
                   center: citymap[city].center,
                   radius: (citymap[city].radius) * 100

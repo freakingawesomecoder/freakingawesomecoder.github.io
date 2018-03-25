@@ -209,6 +209,7 @@ map.addListener('center_changed', function() {
         map.data.addListener('mouseover', function(event) {
           map.data.revertStyle();
           map.data.overrideStyle(event.feature, {strokeWeight: 2.4});
+          infowindow.open(map, map.data);  
         });
 
         map.data.addListener('mouseout', function(event) {

@@ -1,240 +1,95 @@
-<!DOCTYPE html>
 <html>
-<body>
+  <head>
 
-<div id="map" style="text-align: center; margin-top: 40px; margin-left: 320px; margin-bottom: 40px;width:800px; height:600px"></div>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
 
-<script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
 
-function myMap() {
-var mapOptions = {
-    center: new google.maps.LatLng(20.7679, 79.8718),
-    zoom:4.8,
-    disableDefaultUI: true,
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
-    styles:[
-    {"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},
-    {"featureType":"administrative.country","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"administrative.province","elementType":"geometry.fill","stylers":[{"lightness":"-3"}]},
-    {"featureType":"administrative.province","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"administrative.locality","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"administrative.neighborhood","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"administrative.land_parcel","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"landscape","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"landscape.man_made","elementType":"geometry.fill","stylers":[{"saturation":"43"},{"lightness":"100"}]},
-    {"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#e0efef"}]},
-    {"featureType":"landscape.natural.landcover","elementType":"geometry.fill","stylers":[{"saturation":"70"},{"lightness":"100"},{"gamma":"8.32"}]},
-    {"featureType":"landscape.natural.terrain","elementType":"geometry.fill","stylers":[{"lightness":"47"}]},
-    {"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"hue":"#1900ff"},{"color":"#c0e8e8"}]},
-    {"featureType":"poi","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"road","elementType":"geometry","stylers":[{"lightness":100},{"visibility":"simplified"}]},
-    {"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"road.highway","elementType":"labels.text","stylers":[{"visibility":"off"}]},
-    {"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"visibility":"off"}]},
-    {"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"visibility":"off"}]},
-    {"featureType":"transit.line","elementType":"geometry","stylers":[{"visibility":"on"},{"lightness":700}]},
-    {"featureType":"transit.station","elementType":"labels","stylers":[{"visibility":"off"}]},
-    {"featureType":"water","elementType":"all","stylers":[{"color":"#7dcdcd"}]}]
-}
-var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-//map.data.loadGeoJson('map.geojson')
-//var chart = new google.visualization.GeoChart(document.getElementById('map'));
-var marker = new google.maps.Marker({
-         position: {lat:20.7679, lng:79.8718},
-         //map: map,
-         title: 'Click to zoom'
-       });
-map.addListener('center_changed', function() {
-          window.setTimeout(function() {
-           map.setZoom(4.8);
-           map.panTo(marker.getPosition());
-         }, 8000);
-        });
-
-        var lineSymbol = {
-           path: 'M 0,-1 0,1',
-           strokeColor: '#2d2db9',
-           strokeOpacity: 1,
-           scale: 3
-         };
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawInMigrationChart);
+      google.charts.setOnLoadCallback(drawOutMigrationChart);
 
 
-         var line = new google.maps.Polyline({
-          path: [{lat: 13.067439, lng: 80.237617},
-            {lat: 12.972442, lng: 76.580643},
-            ],
-          strokeOpacity: 0,
-          icons: [{
-            icon: lineSymbol,
-            offset: '0',
-            repeat: '20px'
-              }],
-          map: map
-        });
+      function drawInMigrationChart() {
+        var data = google.visualization.arrayToDataTable([
+         ['Year', 'Agriculture'],
+         [ 2004,      12],
+         [ 2005,      5.5],
+         [ 2006,     14],
+         [ 2007,      5],
+         [ 2008,      3.5],
+         [ 2009,    7]
+       ]);
 
-        animateCircle(line);
+        var options = {'legend': 'left',
+                       'title':'Percentage of IN Migration',
+                       'width':400,
+                       'height':350,
+                       'is3D': true,
+                       animation:{'startup':true,'duration':1000,'easing':'inAndOut'},
+                        crosshair: { trigger: 'both', orientation: 'both' },
+                       trendlines: {
+           0: {
+             type: 'polynomial',
+             degree: 3,
+             visibleInLegend: true,
+           }
+         }
+                        };
 
-        var line = new google.maps.Polyline({
-          path:[{lat: 17.3850, lng: 78.4867},
-          {lat:28.644800, lng: 77.580643}] ,
-
-          strokeOpacity: 0,
-          icons: [{
-            icon: lineSymbol,
-            offset: '0',
-            repeat: '20px'
-              }],
-          map: map
-        });
-
-        animateCircle(line);
-
-        var citymap = {
-                chennai: {
-                  center: {lat: 13.067439, lng: 80.237617},
-                  radius: 380
-                },
-                bangalore: {
-                  center: {lat: 12.972442, lng: 76.580643},
-                  radius: 400
-                },
-                hyderabad: {
-                  center: {lat: 17.3850, lng: 78.4867},
-                  radius: 300
-                },
-                delhi: {
-                  center: {lat: 28.644800, lng: 77.486721},
-                  radius: 380
-                }
-              };
-
-              for (var city in citymap) {
-                // Add the circle for this city to the map.
-                var cityCircle = new google.maps.Circle({
-                  strokeColor: '#EC7063',
-                  strokeOpacity: 1,
-                  strokeWeight: 10,
-                  fillColor: '#EC7063',
-                  fillOpacity: 2,
-                  map: map,
-                  center: citymap[city].center,
-                  radius: (citymap[city].radius) * 100
-                });
-              }
-
-
-      /* Current location Finding code program
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-
-            infoWindow.setPosition(pos);
-            infoWindow.setContent('Location found.');
-            infoWindow.open(map);
-            map.setCenter(pos);
-          }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
-          });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, infoWindow, map.getCenter());
-        }
+        var chart = new google.visualization.ScatterChart(document.getElementById('inmigration_chart_div'));
+        chart.draw(data, options);
       }
 
-      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-                              'Error: The Geolocation service failed.' :
-                              'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map); */
+      function drawOutMigrationChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'State');
+        data.addColumn('number', 'Migration');
+        data.addRows([
+          ['USA', 3],
+          ['London', 1],
+          ['Germany', 1],
+          ['Russia', 1],
+          ['Australia', 2]
+        ]);
 
-        // Load GeoJSON.
-        map.data.loadGeoJson(
-            'countries-hires.geojson');
-          map.data.loadGeoJson('https://raw.githubusercontent.com/geohacker/india/master/state/india_telengana.geojson')
+        var piechart_options = {legend: 'left',
+                       title:'Percentage of OUT Migration',
+                       width:400,
+                       height:350,
+                       //is3D: true,
+                       animation:{'startup':true,'duration':1000,'easing':'linear'}
+                        };
 
-        // Color each letter gray. Change the color when the isColorful property
-        // is set to true.
-        map.data.setStyle(function(feature) {
-          var color = '#B0B0B0';
-          if (feature.getProperty('isColorful')) {
-            color = feature.getProperty('color');
-          }
-          return /** @type {google.maps.Data.StyleOptions} */({
-            fillColor: 'white',
-            strokeColor: color,
-            strokeWeight: 1
-          });
-        });
+        var chart = new google.visualization.PieChart(document.getElementById('outmigration_pie_chart_div'));
+        chart.draw(data, piechart_options);
 
-        var contentString = '<div id="content">'+
-            '<div id="siteNotice">'+
-            '</div>'+
-            '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
-            '<div id="bodyContent">'+
-            '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-            'sandstone rock formation in the southern part of the '+
-            'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-            'south west of the nearest large town, Alice Springs; 450&#160;km '+
-            '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-            'features of the Uluru - Kata Tjuta National Park. Uluru is '+
-            'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
-            'Aboriginal people of the area. It has many springs, waterholes, '+
-            'rock caves and ancient paintings. Uluru is listed as a World '+
-            'Heritage Site.</p>'+
-            '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-            'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-            '(last visited June 22, 2009).</p>'+
-            '</div>'+
-            '</div>';
+        // var barchart_options = {legend: 'left',
+        //                title:'Percentage of OUT Migration',
+        //                width:400,
+        //                height:350,
+        //                //is3D: true,
+        //                animation:{'startup':true,'duration':1000,'easing':'linear'}
+        //                 };
+        //
+        //
+        // var chart = new google.visualization.BarChart(document.getElementById('outmigration_bar_chart_div'));
+        // chart.draw(data, barchart_options);
 
-        var infowindow = new google.maps.InfoWindow({
-          content: contentString,
-          maxWidth: 200
-        });
+      }
 
-        // changing the color of the letters.
-        map.data.addListener('click', function(event) {
-          //event.feature.setProperty('isColorful', true);
-          infowindow.open(map, map.data);
-        });
+    </script>
+  </head>
 
-        // When the user hovers, tempt them to click by outlining the letters.
-        // Call revertStyle() to remove all overrides. This will use the style rules
-        // defined in the function passed to setStyle()
-        map.data.addListener('mouseover', function(event) {
-          map.data.revertStyle();
-          map.data.overrideStyle(event.feature, {strokeWeight: 2.4});
-          infowindow.open(map, map.data);  
-        });
+  <body>
+    <table class="columns">
+      <tr>
+      <td><div id="inmigration_chart_div" style="border: 2px solid #ccc"></div></td>
+      <td><div id="outmigration_pie_chart_div" style="border: 2px solid #ccc"></div></td>
+      <td><div id="outmigration_bar_chart_div" style="border: 2px solid #ccc"></div></td>
+    </tr>
 
-        map.data.addListener('mouseout', function(event) {
-          map.data.revertStyle();
-        });
-
-
-} // closing of the function myMap
-function animateCircle(line) {
-         var count = 0;
-         window.setInterval(function() {
-           count = (count + 1) % 200;
-
-           var icons = line.get('icons');
-           icons[0].offset = (count / 2) + '%';
-           line.set('icons', icons);
-       }, 20);
-     }
-
-</script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeU-vLBclFiFFPc1GGWd7op6sn35Y07dg&callback=myMap"></script>
-<!--
-To use this code on your website, get a free API key from Google.
-Read more at: https://www.w3schools.com/graphics/google_maps_basic.asp
--->
-
-</body>
+    </table>
+  </body>
 </html>
